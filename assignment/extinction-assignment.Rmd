@@ -86,7 +86,7 @@ First, to know what queries to make to the IUCN REST API, we need a list of exti
 
 
 ```{r}
-extinct = read_csv("http://berkeley.carlboettiger.info/espm-88b/extinction/data/extinct.csv")
+extinct = read_csv("https://espm-157.github.io/extinction-module/extinct.csv)
 extinct
 ```
 
