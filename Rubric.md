@@ -15,3 +15,9 @@
     - use regex to search text 
     - demonstrate use of `select`, `group_by`, `summarise`, `filter`, `pull` functions 
       to summarise and subset dataframes for plotting
+    - Use of iteration
+- 6 pts for Module science goals
+    - Appropriate narrative that references existing literature
+    - Compares the analysis to the qualitative conclusions of Cerbellos
+    - Discusses mechanisms for deviation from Cerbellos
+    - Draws on data beyond the scope of the IUCN Rest API?
