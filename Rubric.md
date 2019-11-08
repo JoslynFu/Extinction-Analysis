@@ -1,3 +1,6 @@
+Total Score: 14
+Avaialble points: 18
+
 # Extinction Rubric
 - 2 pt for use of git hub
     - are both users pushing/pulling?
