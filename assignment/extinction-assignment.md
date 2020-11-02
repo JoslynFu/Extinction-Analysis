@@ -31,6 +31,45 @@ the background rate:
 ## Additional references:
 
   - <http://www.hhmi.org/biointeractive/biodiversity-age-humans> (Video)
-  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
+  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
   - [Pimm et al (2014)](http://doi.org/10.1126/science.1246752)
   - [Sandom et al (2014)](http://dx.doi.org/10.1098/rspb.2013.3254)
+
+<!-- end list -->
+
+``` r
+base_url <- "https://apiv3.iucnredlist.org"
+endpoint <- "/api/v3/species/page/"
+page_number <- 0
+args <- "?token="
+token <- "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee"
+query <- paste0(base_url, endpoint, page_number, args, token)
+```
+
+``` r
+resp <- GET("https://apiv3.iucnredlist.org/api/v3/species/page/")
+resp
+```
+
+    Response [https://apiv3.iucnredlist.org/api/v3/species/page/]
+      Date: 2020-11-02 19:23
+      Status: 200
+      Content-Type: application/json; charset=utf-8
+      Size: 92 B
+
+``` r
+txt <- content(resp,as = "parsed")
+```
+
+``` r
+all_sci_names <- 
+  purrr::map_dfr(txt$result, 
+                 function(x) 
+                   data.frame(sci_name = x$scientific_name,
+                   kingdom = x$kingdom_name)
+                 )
+
+all_sci_names
+```
+
+    # A tibble: 0 x 0
