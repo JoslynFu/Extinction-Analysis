@@ -1,5 +1,5 @@
 
-*add gh-actions badge here*
+![Reproducibility](https://github.com/espm-157/extinction-yuan-fu/workflows/Reproducibility/badge.svg)
 
 ## Team Members:
 
