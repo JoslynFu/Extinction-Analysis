@@ -1,0 +1,36 @@
+Extinctions Unit
+================
+Your name, partner name
+
+## Extinctions Module
+
+*Are we experiencing the sixth great extinction?*
+
+What is the current pace of extinction? Is it accelerating? How does it
+compare to background extinction rates?
+
+## Background
+
+  - [Section Intro Video](https://youtu.be/QsH6ytm89GI)
+  - [Ceballos et al (2015)](http://doi.org/10.1126/sciadv.1400253)
+
+Our focal task will be to reproduce the result from Ceballos and
+colleagues showing the recent increase in extinction rates relative to
+the background rate:
+
+![](https://espm-157.carlboettiger.info/img/extinctions.jpg)
+
+## Computational Topics
+
+  - Accessing data from a RESTful API
+  - Error handling
+  - JSON data format
+  - Regular expressions
+  - Working with missing values
+
+## Additional references:
+
+  - <http://www.hhmi.org/biointeractive/biodiversity-age-humans> (Video)
+  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
+  - [Pimm et al (2014)](http://doi.org/10.1126/science.1246752)
+  - [Sandom et al (2014)](http://dx.doi.org/10.1098/rspb.2013.3254)
