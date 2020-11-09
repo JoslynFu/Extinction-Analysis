@@ -52,11 +52,7 @@ resp
 ```
 
     Response [https://apiv3.iucnredlist.org/api/v3/species/page/]
-<<<<<<< HEAD
-      Date: 2020-11-09 19:07
-=======
-      Date: 2020-11-02 19:29
->>>>>>> eb08438ac162d99d936ee10282ef30ea0ff4ce71
+      Date: 2020-11-09 19:19
       Status: 200
       Content-Type: application/json; charset=utf-8
       Size: 92 B
@@ -90,6 +86,14 @@ good <- c(good, try_again)
 txts <- map(good, content, as = "parsed")
 ```
 
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+
 ``` r
 rectangle_me <- function(x) as_tibble(compact(x))
 stack_txt <- function(txt) map_dfr(txt$result, rectangle_me)
@@ -97,7 +101,7 @@ all_sci_names <- purrr::map_dfr(txts,stack_txt)
 all_sci_names
 ```
 
-    # A tibble: 122,933 x 12
+    # A tibble: 60,000 x 12
        taxonid kingdom_name phylum_name class_name order_name family_name genus_name
          <int> <chr>        <chr>       <chr>      <chr>      <chr>       <chr>     
      1       3 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ENDODONTID… Aaadonta  
@@ -110,7 +114,7 @@ all_sci_names
      8      18 ANIMALIA     CHORDATA    MAMMALIA   RODENTIA   ABROCOMIDAE Abrocoma  
      9      20 ANIMALIA     CHORDATA    REPTILIA   SQUAMATA   ANGUIDAE    Abronia   
     10      43 ANIMALIA     ARTHROPODA  INSECTA    ODONATA    AESHNIDAE   Acanthaes…
-    # … with 122,923 more rows, and 5 more variables: scientific_name <chr>,
+    # … with 59,990 more rows, and 5 more variables: scientific_name <chr>,
     #   category <chr>, infra_rank <chr>, infra_name <chr>, population <chr>
 
 ``` r
@@ -119,7 +123,7 @@ extinct <- all_sci_names %>% filter(category == "EX")
 extinct
 ```
 
-    # A tibble: 919 x 12
+    # A tibble: 668 x 12
        taxonid kingdom_name phylum_name class_name order_name family_name genus_name
          <int> <chr>        <chr>       <chr>      <chr>      <chr>       <chr>     
      1      73 ANIMALIA     CHORDATA    ACTINOPTE… CYPRINIFO… CYPRINIDAE  Mirogrex  
@@ -132,7 +136,7 @@ extinct
      8     180 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
      9     181 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
     10     184 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
-    # … with 909 more rows, and 5 more variables: scientific_name <chr>,
+    # … with 658 more rows, and 5 more variables: scientific_name <chr>,
     #   category <chr>, infra_rank <chr>, infra_name <chr>, population <chr>
 
 ``` r
