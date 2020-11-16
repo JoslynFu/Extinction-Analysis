@@ -52,7 +52,11 @@ resp
 ```
 
     Response [https://apiv3.iucnredlist.org/api/v3/species/page/]
+<<<<<<< HEAD
       Date: 2020-11-16 19:17
+=======
+      Date: 2020-11-09 19:19
+>>>>>>> 2f1433d5fcd0f6037ba6d03ba7bd693d4b456369
       Status: 200
       Content-Type: application/json; charset=utf-8
       Size: 92 B
@@ -86,6 +90,14 @@ good <- c(good, try_again)
 txts <- map(good, content, as = "parsed")
 ```
 
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+    No encoding supplied: defaulting to UTF-8.
+
 ``` r
 rectangle_me <- function(x) as_tibble(compact(x))
 stack_txt <- function(txt) map_dfr(txt$result, rectangle_me)
@@ -93,7 +105,7 @@ all_sci_names <- purrr::map_dfr(txts,stack_txt)
 all_sci_names
 ```
 
-    # A tibble: 122,933 x 12
+    # A tibble: 60,000 x 12
        taxonid kingdom_name phylum_name class_name order_name family_name genus_name
          <int> <chr>        <chr>       <chr>      <chr>      <chr>       <chr>     
      1       3 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ENDODONTID… Aaadonta  
@@ -106,7 +118,7 @@ all_sci_names
      8      18 ANIMALIA     CHORDATA    MAMMALIA   RODENTIA   ABROCOMIDAE Abrocoma  
      9      20 ANIMALIA     CHORDATA    REPTILIA   SQUAMATA   ANGUIDAE    Abronia   
     10      43 ANIMALIA     ARTHROPODA  INSECTA    ODONATA    AESHNIDAE   Acanthaes…
-    # … with 122,923 more rows, and 5 more variables: scientific_name <chr>,
+    # … with 59,990 more rows, and 5 more variables: scientific_name <chr>,
     #   category <chr>, infra_rank <chr>, infra_name <chr>, population <chr>
 
 ``` r
@@ -115,9 +127,10 @@ extinct <- all_sci_names %>% filter(category == "EX") %>% arrange(scientific_nam
 extinct
 ```
 
-    # A tibble: 919 x 12
+    # A tibble: 668 x 12
        taxonid kingdom_name phylum_name class_name order_name family_name genus_name
          <int> <chr>        <chr>       <chr>      <chr>      <chr>       <chr>     
+<<<<<<< HEAD
      1   44072 PLANTAE      TRACHEOPHY… MAGNOLIOP… ROSALES    ROSACEAE    Acaena    
      2  195373 PLANTAE      TRACHEOPHY… MAGNOLIOP… MALPIGHIA… EUPHORBIAC… Acalypha  
      3   37854 PLANTAE      TRACHEOPHY… MAGNOLIOP… MALPIGHIA… EUPHORBIAC… Acalypha  
@@ -129,6 +142,19 @@ extinct
      9     210 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
     10     173 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
     # … with 909 more rows, and 5 more variables: scientific_name <chr>,
+=======
+     1      73 ANIMALIA     CHORDATA    ACTINOPTE… CYPRINIFO… CYPRINIDAE  Mirogrex  
+     2      82 ANIMALIA     ARTHROPODA  INSECTA    EPHEMEROP… ACANTHAMET… Acanthame…
+     3     167 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+     4     170 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+     5     173 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+     6     174 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+     7     179 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+     8     180 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+     9     181 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+    10     184 ANIMALIA     MOLLUSCA    GASTROPODA STYLOMMAT… ACHATINELL… Achatinel…
+    # … with 658 more rows, and 5 more variables: scientific_name <chr>,
+>>>>>>> 2f1433d5fcd0f6037ba6d03ba7bd693d4b456369
     #   category <chr>, infra_rank <chr>, infra_name <chr>, population <chr>
 
 ``` r
