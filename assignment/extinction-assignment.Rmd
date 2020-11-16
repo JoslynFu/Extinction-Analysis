@@ -12,6 +12,7 @@ library("tidyverse")
 library("httr")
 library("jsonlite")
 #library("printr")
+library(progress)
 knitr::opts_chunk$set(comment=NA)
 ```
 
@@ -99,27 +100,62 @@ all_sci_names
 
 ```{r}
 #Search for extinction date#
-extinct <- all_sci_names %>% filter(category == "EX")
+extinct <- all_sci_names %>% filter(category == "EX") %>% arrange(scientific_name)
 extinct
 ```
 
 ```{r}
-name <- extinct$scientfic_name[[10]]
-url <- paste0(base_url,"/api/v3/species/narrative/",name,args,token)
+name <- extinct$scientific_name[[919]]
+url <- paste0(base_url, "/api/v3/species/narrative/", name, args, token)
 
 x <- url %>% GET() %>% content()
 #Dig inside the reslut object. There's a line of text saying it was last discovered in 1990s. However, it's not the style we want. We need regular expression!
 
-#x$result[[1]]$rationale
+rationale <- x$result[[1]]$rationale
 # How to parse this text to get the date?
+rationale
 ```
 
 ```{r}
 library(stringr)
-stringr::str_extract("species went extnct iin 1980s","\\d+")
+stringr::str_extract(rationale,"\\d+")
 ```
 
 
+```{r}
+pb <- progress_bar$new(
+  format = "  RedList query [:bar] :percent eta: :eta",
+  total = 100, clear = FALSE, width= 60)
+get2 <- function(url){
+  pb$tick()
+  resp <- GET(url)
+  if(status_code(resp) >= 500){
+    Sys.sleep(0.1)
+    resp <- GET(url)
+  }
+}
+```
+
+
+```{r}
+#if (!file.exists("resp2.rds")) {
+#  resp2 <- map(url[1:20], get2)
+#  saveRDS(resp2, "resp2.rds")
+#}
+#resp2 <- readRDS("resp2.rds")
+
+```
+
+
+```{r}
+name <-extinct$scientific_name[1:919]
+url <- paste0(base_url, "/api/v3/species/narrative/", name, args, token)
+#resp2 <- map(url, GET)
+#narrative <- map(resp2, content, as = "parsed")
+#get_rationale <- function(x) x$result[[1]]$rationale
+#safe_get <- safely(get_rationale, otherwise = "")
+#rationale_txt <- map(narrative, safe_get)
+```
 
 
 
