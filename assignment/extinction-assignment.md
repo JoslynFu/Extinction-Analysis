@@ -31,7 +31,7 @@ the background rate:
 ## Additional references:
 
   - <http://www.hhmi.org/biointeractive/biodiversity-age-humans> (Video)
-  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
+  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
   - [Pimm et al (2014)](http://doi.org/10.1126/science.1246752)
   - [Sandom et al (2014)](http://dx.doi.org/10.1098/rspb.2013.3254)
 
@@ -52,7 +52,7 @@ resp
 ```
 
     Response [https://apiv3.iucnredlist.org/api/v3/species/page/]
-      Date: 2020-11-16 19:24
+      Date: 2020-11-18 19:05
       Status: 200
       Content-Type: application/json; charset=utf-8
       Size: 92 B
@@ -167,19 +167,43 @@ get2 <- function(url){
 ```
 
 ``` r
-#if (!file.exists("resp2.rds")) {
-#  resp2 <- map(url[1:20], get2)
-#  saveRDS(resp2, "resp2.rds")
-#}
-#resp2 <- readRDS("resp2.rds")
+if (!file.exists("resp2.rds")) {
+  resp2 <- map(url[1:20], get2)
+  saveRDS(resp2, "resp2.rds")
+}
+resp2 <- readRDS("resp2.rds")
 ```
 
 ``` r
 name <-extinct$scientific_name[1:919]
 url <- paste0(base_url, "/api/v3/species/narrative/", name, args, token)
 #resp2 <- map(url, GET)
-#narrative <- map(resp2, content, as = "parsed")
-#get_rationale <- function(x) x$result[[1]]$rationale
-#safe_get <- safely(get_rationale, otherwise = "")
-#rationale_txt <- map(narrative, safe_get)
+```
+
+``` r
+status <- map_int(resp2, status_code)
+all(status == 200)
+
+narrative <- map(resp2, content)
+names <- map(narrative, "name")
+missing <- map_lgl(names, is.null)
+
+good_names <- names[!missing]
+good_narrative <- narrative[!missing]
+
+result <- map(good_narrative, "result")
+result1 <- map(result, function(x) x[[1]])
+rationale <- map(result1, "rationale")
+missing_rationale <- map_lgl(rationale, is.null)
+
+complete_narrative <- good_narrative[!missing_rationale]
+complete_rationale <- rationale[!missing_rationale]
+complete_names <- good_names[!missing_rationale]
+narrative_df <- tibble(scientific_name = as.character(complete_names),
+                       rationale = as.character(complete_rationale))
+
+narrative_df %>% 
+  left_join(extinct) %>% 
+  mutate(date = stringr::str_extract(rationale, "\\d{4}"),
+         century = stringr::str_extract(date, "\\d{2}"))
 ```
