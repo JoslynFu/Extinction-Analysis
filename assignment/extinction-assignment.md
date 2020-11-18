@@ -31,7 +31,7 @@ the background rate:
 ## Additional references:
 
   - <http://www.hhmi.org/biointeractive/biodiversity-age-humans> (Video)
-  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
+  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
   - [Pimm et al (2014)](http://doi.org/10.1126/science.1246752)
   - [Sandom et al (2014)](http://dx.doi.org/10.1098/rspb.2013.3254)
 
@@ -52,7 +52,7 @@ resp
 ```
 
     Response [https://apiv3.iucnredlist.org/api/v3/species/page/]
-      Date: 2020-11-18 19:05
+      Date: 2020-11-18 19:07
       Status: 200
       Content-Type: application/json; charset=utf-8
       Size: 92 B
