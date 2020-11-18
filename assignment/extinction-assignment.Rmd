@@ -136,6 +136,11 @@ get2 <- function(url){
 }
 ```
 
+```{r}
+download.file("https://github.com/espm-157/extinction-template/releases/download/data/resp2.rds", "resp2.rds")
+resp2 <- readRDS("resp2.rds")
+```
+
 
 ```{r}
 if (!file.exists("resp2.rds")) {
@@ -147,12 +152,17 @@ resp2 <- readRDS("resp2.rds")
 ```
 
 
-```{r}
+```{r eval = FALSE }
 name <-extinct$scientific_name[1:919]
 url <- paste0(base_url, "/api/v3/species/narrative/", name, args, token)
-#resp2 <- map(url, GET)
+resp2 <- map(url, GET)
 ```
 
+
+
+```{r}
+resp2 <- readRDS("resp2.rds")
+```
 
 ```{r eval=FALSE}
 status <- map_int(resp2, status_code)
