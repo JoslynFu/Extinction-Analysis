@@ -176,13 +176,12 @@ complete_rationale <- rationale[!missing_rationale]
 complete_names <- good_names[!missing_rationale]
 narrative_df <- tibble(scientific_name = as.character(complete_names),
                        rationale = as.character(complete_rationale))
-
-mutated <- narrative_df %>% 
-  left_join(extinct) %>% 
-  mutate(date = stringr::str_extract(rationale, "\\d{4}"),
-         century = stringr::str_extract(date, "\\d{2}"))
+narrative_df
 ```
 ```{r}
+mutated <- narrative_df %>% 
+  left_join(extinct) %>% 
+  mutate(date = stringr::str_extract(rationale, "\\d{4}"),century = stringr::str_extract(date, "\\d{2}"))
 mutated
 ```
 
