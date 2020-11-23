@@ -151,15 +151,6 @@ resp2 <- readRDS("resp2.rds")
 
 ```
 
-
-```{r eval = FALSE }
-name <-extinct$scientific_name[1:919]
-url <- paste0(base_url, "/api/v3/species/narrative/", name, args, token)
-resp2 <- map(url, GET)
-```
-
-
-
 ```{r}
 resp2 <- readRDS("resp2.rds")
 ```
@@ -186,13 +177,52 @@ complete_names <- good_names[!missing_rationale]
 narrative_df <- tibble(scientific_name = as.character(complete_names),
                        rationale = as.character(complete_rationale))
 
-narrative_df %>% 
+mutated <- narrative_df %>% 
   left_join(extinct) %>% 
   mutate(date = stringr::str_extract(rationale, "\\d{4}"),
          century = stringr::str_extract(date, "\\d{2}"))
 ```
+```{r}
+mutated
+```
+
+```{r}
+result2 <- mutated %>%
+  group_by(class_name,century) %>% 
+  summarise(extinct = n())
+result2
+```
+
+```{r}
+result3 <- result2 %>% 
+  arrange(class_name,century) %>%
+  mutate(cumulative_extinction = cumsum(extinct))
+result3
+```
+
+```{r}
+count <- all_sci_names %>% 
+  count(class_name)
+count
+```
+
+```{r}
+final_result1 <- result3 %>%
+  inner_join(count)
+final_result1
+```
 
 
-
-
+```{r}
+final_result2 <- final_result1 %>% 
+  mutate(cumulative_extinction_rate = cumulative_extinction/n) %>%
+  filter(century %in% 15:21) %>%
+  filter(class_name == 'ACTINOPTERYGII'|class_name == 'AVES'|class_name =='INSECTA'|class_name =='MAMMALIA'|class_name =='REPTILIA')
+final_result2
+```
+```{r}
+final_result2 %>%
+  ggplot(aes(x = century,y = cumulative_extinction_rate,group=class_name,color=class_name)) + 
+  geom_line()
+```
 
