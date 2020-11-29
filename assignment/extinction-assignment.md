@@ -31,7 +31,7 @@ the background rate:
 ## Additional references:
 
   - <http://www.hhmi.org/biointeractive/biodiversity-age-humans> (Video)
-  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
+  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
   - [Pimm et al (2014)](http://doi.org/10.1126/science.1246752)
   - [Sandom et al (2014)](http://dx.doi.org/10.1098/rspb.2013.3254)
 
@@ -52,7 +52,7 @@ resp
 ```
 
     Response [https://apiv3.iucnredlist.org/api/v3/species/page/]
-      Date: 2020-11-18 19:58
+      Date: 2020-11-29 04:27
       Status: 200
       Content-Type: application/json; charset=utf-8
       Size: 92 B
@@ -167,8 +167,8 @@ get2 <- function(url){
 ```
 
 ``` r
-download.file("https://github.com/espm-157/extinction-template/releases/download/data/resp2.rds", "resp2.rds")
-resp2 <- readRDS("resp2.rds")
+#download.file("https://github.com/espm-157/extinction-template/releases/download/data/resp2.rds", "resp2.rds")
+#resp2 <- readRDS("resp2.rds")
 ```
 
 ``` r
@@ -180,19 +180,13 @@ resp2 <- readRDS("resp2.rds")
 ```
 
 ``` r
-name <-extinct$scientific_name[1:919]
-url <- paste0(base_url, "/api/v3/species/narrative/", name, args, token)
-resp2 <- map(url, GET)
-```
-
-``` r
-resp2 <- readRDS("resp2.rds")
-```
-
-``` r
 status <- map_int(resp2, status_code)
 all(status == 200)
+```
 
+    [1] TRUE
+
+``` r
 narrative <- map(resp2, content)
 names <- map(narrative, "name")
 missing <- map_lgl(names, is.null)
@@ -210,9 +204,164 @@ complete_rationale <- rationale[!missing_rationale]
 complete_names <- good_names[!missing_rationale]
 narrative_df <- tibble(scientific_name = as.character(complete_names),
                        rationale = as.character(complete_rationale))
-
-narrative_df %>% 
-  left_join(extinct) %>% 
-  mutate(date = stringr::str_extract(rationale, "\\d{4}"),
-         century = stringr::str_extract(date, "\\d{2}"))
 ```
+
+``` r
+mutated <- narrative_df %>% 
+  left_join(extinct) %>% 
+  mutate(date = stringr::str_extract(rationale, "\\d{4}"),century = stringr::str_extract(date, "\\d{2}"))
+```
+
+    Joining, by = "scientific_name"
+
+``` r
+mutated
+```
+
+    # A tibble: 663 x 15
+       scientific_name rationale taxonid kingdom_name phylum_name class_name
+       <chr>           <chr>       <int> <chr>        <chr>       <chr>     
+     1 Acaena exigua   "The las…  4.41e4 PLANTAE      TRACHEOPHY… MAGNOLIOP…
+     2 Acalypha dikul… "<span s…  1.95e5 PLANTAE      TRACHEOPHY… MAGNOLIOP…
+     3 Acalypha rubri… "The Str…  3.79e4 PLANTAE      TRACHEOPHY… MAGNOLIOP…
+     4 Acalypha wilde… "<span s…  2.00e5 PLANTAE      TRACHEOPHY… MAGNOLIOP…
+     5 Achyranthes at… "The las…  4.41e4 PLANTAE      TRACHEOPHY… MAGNOLIOP…
+     6 Acipenser nudi… "The spe…  2.51e2 ANIMALIA     CHORDATA    ACTINOPTE…
+     7 Acrocephalus a… "This sp…  1.04e8 ANIMALIA     CHORDATA    AVES      
+     8 Acrocephalus l… "This sp…  1.04e8 ANIMALIA     CHORDATA    AVES      
+     9 Acrocephalus m… "This sp…  2.27e7 ANIMALIA     CHORDATA    AVES      
+    10 Acrocephalus n… "There a…  1.04e8 ANIMALIA     CHORDATA    AVES      
+    # … with 653 more rows, and 9 more variables: order_name <chr>,
+    #   family_name <chr>, genus_name <chr>, category <chr>, infra_rank <chr>,
+    #   infra_name <chr>, population <chr>, date <chr>, century <chr>
+
+``` r
+result2 <- mutated %>%
+  group_by(class_name,century) %>% 
+  summarise(extinct = n())
+```
+
+    `summarise()` regrouping output by 'class_name' (override with `.groups` argument)
+
+``` r
+result2
+```
+
+    # A tibble: 61 x 3
+    # Groups:   class_name [19]
+       class_name     century extinct
+       <chr>          <chr>     <int>
+     1 ACTINOPTERYGII 18            4
+     2 ACTINOPTERYGII 19           43
+     3 ACTINOPTERYGII 20            3
+     4 ACTINOPTERYGII <NA>         36
+     5 AMPHIBIA       13            1
+     6 AMPHIBIA       19           11
+     7 AMPHIBIA       <NA>         23
+     8 ARACHNIDA      18            5
+     9 ARACHNIDA      19            4
+    10 AVES           15            6
+    # … with 51 more rows
+
+``` r
+result3 <- result2 %>% 
+  arrange(class_name,century) %>%
+  mutate(cumulative_extinction = cumsum(extinct))
+result3
+```
+
+    # A tibble: 61 x 4
+    # Groups:   class_name [19]
+       class_name     century extinct cumulative_extinction
+       <chr>          <chr>     <int>                 <int>
+     1 ACTINOPTERYGII 18            4                     4
+     2 ACTINOPTERYGII 19           43                    47
+     3 ACTINOPTERYGII 20            3                    50
+     4 ACTINOPTERYGII <NA>         36                    86
+     5 AMPHIBIA       13            1                     1
+     6 AMPHIBIA       19           11                    12
+     7 AMPHIBIA       <NA>         23                    35
+     8 ARACHNIDA      18            5                     5
+     9 ARACHNIDA      19            4                     9
+    10 AVES           15            6                     6
+    # … with 51 more rows
+
+``` r
+count <- all_sci_names %>% 
+  count(class_name)
+count
+```
+
+    # A tibble: 62 x 2
+       class_name           n
+       <chr>            <int>
+     1 ACTINOPTERYGII   19812
+     2 AGARICOMYCETES     280
+     3 AMPHIBIA          6893
+     4 ANDREAEOPSIDA        2
+     5 ANTHOCEROTOPSIDA     2
+     6 ANTHOZOA           868
+     7 ARACHNIDA          344
+     8 ARTHONIOMYCETES      1
+     9 AVES             11147
+    10 BIVALVIA           823
+    # … with 52 more rows
+
+``` r
+final_result1 <- result3 %>%
+  inner_join(count)
+```
+
+    Joining, by = "class_name"
+
+``` r
+final_result1
+```
+
+    # A tibble: 61 x 5
+    # Groups:   class_name [19]
+       class_name     century extinct cumulative_extinction     n
+       <chr>          <chr>     <int>                 <int> <int>
+     1 ACTINOPTERYGII 18            4                     4 19812
+     2 ACTINOPTERYGII 19           43                    47 19812
+     3 ACTINOPTERYGII 20            3                    50 19812
+     4 ACTINOPTERYGII <NA>         36                    86 19812
+     5 AMPHIBIA       13            1                     1  6893
+     6 AMPHIBIA       19           11                    12  6893
+     7 AMPHIBIA       <NA>         23                    35  6893
+     8 ARACHNIDA      18            5                     5   344
+     9 ARACHNIDA      19            4                     9   344
+    10 AVES           15            6                     6 11147
+    # … with 51 more rows
+
+``` r
+final_result2 <- final_result1 %>% 
+  mutate(cumulative_extinction_rate = cumulative_extinction/n) %>%
+  filter(century %in% 15:21) %>%
+  filter(class_name == 'ACTINOPTERYGII'|class_name == 'AVES'|class_name =='INSECTA'|class_name =='MAMMALIA'|class_name =='REPTILIA')
+final_result2
+```
+
+    # A tibble: 22 x 6
+    # Groups:   class_name [5]
+       class_name    century extinct cumulative_extinct…     n cumulative_extinctio…
+       <chr>         <chr>     <int>               <int> <int>                 <dbl>
+     1 ACTINOPTERYG… 18            4                   4 19812              0.000202
+     2 ACTINOPTERYG… 19           43                  47 19812              0.00237 
+     3 ACTINOPTERYG… 20            3                  50 19812              0.00252 
+     4 AVES          15            6                   6 11147              0.000538
+     5 AVES          16           16                  22 11147              0.00197 
+     6 AVES          17           22                  44 11147              0.00395 
+     7 AVES          18           47                  91 11147              0.00816 
+     8 AVES          19           53                 144 11147              0.0129  
+     9 AVES          20            2                 146 11147              0.0131  
+    10 INSECTA       18            6                   6  9885              0.000607
+    # … with 12 more rows
+
+``` r
+final_result2 %>%
+  ggplot(aes(x = century,y = cumulative_extinction_rate,group=class_name,color=class_name)) + 
+  geom_line()
+```
+
+![](extinction-assignment_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->

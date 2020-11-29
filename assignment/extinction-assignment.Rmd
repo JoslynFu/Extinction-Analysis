@@ -137,8 +137,8 @@ get2 <- function(url){
 ```
 
 ```{r}
-download.file("https://github.com/espm-157/extinction-template/releases/download/data/resp2.rds", "resp2.rds")
-resp2 <- readRDS("resp2.rds")
+#download.file("https://github.com/espm-157/extinction-template/releases/download/data/resp2.rds", "resp2.rds")
+#resp2 <- readRDS("resp2.rds")
 ```
 
 
@@ -152,10 +152,6 @@ resp2 <- readRDS("resp2.rds")
 ```
 
 ```{r}
-resp2 <- readRDS("resp2.rds")
-```
-
-```{r eval=FALSE}
 status <- map_int(resp2, status_code)
 all(status == 200)
 
@@ -176,8 +172,8 @@ complete_rationale <- rationale[!missing_rationale]
 complete_names <- good_names[!missing_rationale]
 narrative_df <- tibble(scientific_name = as.character(complete_names),
                        rationale = as.character(complete_rationale))
-narrative_df
 ```
+
 ```{r}
 mutated <- narrative_df %>% 
   left_join(extinct) %>% 
@@ -224,4 +220,5 @@ final_result2 %>%
   ggplot(aes(x = century,y = cumulative_extinction_rate,group=class_name,color=class_name)) + 
   geom_line()
 ```
+
 
