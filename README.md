@@ -12,6 +12,6 @@
 This is a project by Joslyn and Kelly to explore extinction among species. 
 
 
-Please find our extinction.Rmd and extinction.md files in the assignment folder.
+Please find our extinction-assignment.Rmd and extinction-assignment.md files in the assignment folder.
 Hope you enjoy reading our code and analysis :)
 
