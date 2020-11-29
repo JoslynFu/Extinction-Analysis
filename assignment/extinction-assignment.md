@@ -1,13 +1,6 @@
 Extinctions Unit
 ================
-Your name, partner name
-
-## Extinctions Module
-
-*Are we experiencing the sixth great extinction?*
-
-What is the current pace of extinction? Is it accelerating? How does it
-compare to background extinction rates?
+Joslyn Fu, Kelly Yuan
 
 ## Background
 
@@ -20,22 +13,9 @@ the background rate:
 
 ![](https://espm-157.carlboettiger.info/img/extinctions.jpg)
 
-## Computational Topics
+## Coding Part
 
-  - Accessing data from a RESTful API
-  - Error handling
-  - JSON data format
-  - Regular expressions
-  - Working with missing values
-
-## Additional references:
-
-  - <http://www.hhmi.org/biointeractive/biodiversity-age-humans> (Video)
-  - [Barnosky et al. (2011)](http://doi.org/10.1038/nature09678)
-  - [Pimm et al (2014)](http://doi.org/10.1126/science.1246752)
-  - [Sandom et al (2014)](http://dx.doi.org/10.1098/rspb.2013.3254)
-
-<!-- end list -->
+Let’s start with downloading the data we need.
 
 ``` r
 base_url <- "https://apiv3.iucnredlist.org"
@@ -52,7 +32,7 @@ resp
 ```
 
     Response [https://apiv3.iucnredlist.org/api/v3/species/page/]
-      Date: 2020-11-29 04:27
+      Date: 2020-11-29 05:09
       Status: 200
       Content-Type: application/json; charset=utf-8
       Size: 92 B
@@ -81,8 +61,9 @@ try_again <- map(queries[status != 200], GET)
 good <- c(good, try_again)
 ```
 
+Then, we need to rectangle the full species list:
+
 ``` r
-#Rectangle the full species list:#
 txts <- map(good, content, as = "parsed")
 ```
 
@@ -109,8 +90,11 @@ all_sci_names
     # … with 122,923 more rows, and 5 more variables: scientific_name <chr>,
     #   category <chr>, infra_rank <chr>, infra_name <chr>, population <chr>
 
+We need to filter the category to get the extinct species and arrange it
+by
+scientific\_name.
+
 ``` r
-#Search for extinction date#
 extinct <- all_sci_names %>% filter(category == "EX") %>% arrange(scientific_name)
 extinct
 ```
@@ -131,6 +115,9 @@ extinct
     # … with 909 more rows, and 5 more variables: scientific_name <chr>,
     #   category <chr>, infra_rank <chr>, infra_name <chr>, population <chr>
 
+Here’s a quick example to see how we can extract the approximate
+extinction date from the data:
+
 ``` r
 name <- extinct$scientific_name[[919]]
 url <- paste0(base_url, "/api/v3/species/narrative/", name, args, token)
@@ -145,6 +132,9 @@ rationale
 
     [1] "This species was endemic to Lord Howe Island, Australia, but it is now Extinct due to overpredation by introduced rats. It was last recorded in 1908, and not found on a survey in 1928."
 
+To do that, we need to import the stringr library to enable the usage of
+regular expression.
+
 ``` r
 library(stringr)
 stringr::str_extract(rationale,"\\d+")
@@ -152,24 +142,7 @@ stringr::str_extract(rationale,"\\d+")
 
     [1] "1908"
 
-``` r
-pb <- progress_bar$new(
-  format = "  RedList query [:bar] :percent eta: :eta",
-  total = 100, clear = FALSE, width= 60)
-get2 <- function(url){
-  pb$tick()
-  resp <- GET(url)
-  if(status_code(resp) >= 500){
-    Sys.sleep(0.1)
-    resp <- GET(url)
-  }
-}
-```
-
-``` r
-#download.file("https://github.com/espm-157/extinction-template/releases/download/data/resp2.rds", "resp2.rds")
-#resp2 <- readRDS("resp2.rds")
-```
+We then need this new data.
 
 ``` r
 if (!file.exists("resp2.rds")) {
@@ -178,6 +151,9 @@ if (!file.exists("resp2.rds")) {
 }
 resp2 <- readRDS("resp2.rds")
 ```
+
+We need to generate a dataframe that has one column for scientific\_name
+and one column for rationale using the method illustrated above.
 
 ``` r
 status <- map_int(resp2, status_code)
@@ -204,7 +180,26 @@ complete_rationale <- rationale[!missing_rationale]
 complete_names <- good_names[!missing_rationale]
 narrative_df <- tibble(scientific_name = as.character(complete_names),
                        rationale = as.character(complete_rationale))
+narrative_df
 ```
+
+    # A tibble: 643 x 2
+       scientific_name       rationale                                              
+       <chr>                 <chr>                                                  
+     1 Acaena exigua         "The last known individual of <em>A. exigua</em> was d…
+     2 Acalypha dikuluwensis "<span style=\"font-style: italic;\">Acalypha dikuluwe…
+     3 Acalypha rubrinervis  "The Stringwood (<em>Acalypha rubrinervis</em>) was la…
+     4 Acalypha wilderi      "<span style=\"font-style: italic;\">Acalypha wilderi<…
+     5 Achyranthes atollens… "The last known individual of <em>A. atollensis</em> w…
+     6 Acipenser nudiventris "The species is known from the Black, Aral and Caspian…
+     7 Acrocephalus astrola… "This species is Extinct. It was not recorded since th…
+     8 Acrocephalus luscini… "This species qualifies as Extinct because of a very r…
+     9 Acrocephalus musae    "This species was lost from both islands where it used…
+    10 Acrocephalus nijoi    "There are no records of the species since 1995, despi…
+    # … with 633 more rows
+
+Then, we need to combine the narrative\_df and the extinct dataframe we
+have earlier and add one more column “century” for future use.
 
 ``` r
 mutated <- narrative_df %>% 
@@ -235,8 +230,11 @@ mutated
     #   family_name <chr>, genus_name <chr>, category <chr>, infra_rank <chr>,
     #   infra_name <chr>, population <chr>, date <chr>, century <chr>
 
+We would then do group\_by classname first and century next to get the
+number of species that went extinct in each century.
+
 ``` r
-result2 <- mutated %>%
+combined <- mutated %>%
   group_by(class_name,century) %>% 
   summarise(extinct = n())
 ```
@@ -244,7 +242,7 @@ result2 <- mutated %>%
     `summarise()` regrouping output by 'class_name' (override with `.groups` argument)
 
 ``` r
-result2
+combined
 ```
 
     # A tibble: 61 x 3
@@ -263,11 +261,14 @@ result2
     10 AVES           15            6
     # … with 51 more rows
 
+The final steps is to calculate the extinction rate\! We need to get the
+cumulative extinction number and the total species number.
+
 ``` r
-result3 <- result2 %>% 
+cumulative_extinction <- combined %>% 
   arrange(class_name,century) %>%
   mutate(cumulative_extinction = cumsum(extinct))
-result3
+cumulative_extinction
 ```
 
     # A tibble: 61 x 4
@@ -285,6 +286,8 @@ result3
      9 ARACHNIDA      19            4                     9
     10 AVES           15            6                     6
     # … with 51 more rows
+
+To get the total species number, we need a new method called “count.”
 
 ``` r
 count <- all_sci_names %>% 
@@ -307,8 +310,10 @@ count
     10 BIVALVIA           823
     # … with 52 more rows
 
+We need to join the two tables to appraoch our final result.
+
 ``` r
-final_result1 <- result3 %>%
+final_result1 <- cumulative_extinction %>%
   inner_join(count)
 ```
 
@@ -334,6 +339,9 @@ final_result1
     10 AVES           15            6                     6 11147
     # … with 51 more rows
 
+Here is the final result table\! To make our final graph more readable,
+we decide to choose classes that are more representative.
+
 ``` r
 final_result2 <- final_result1 %>% 
   mutate(cumulative_extinction_rate = cumulative_extinction/n) %>%
@@ -358,10 +366,44 @@ final_result2
     10 INSECTA       18            6                   6  9885              0.000607
     # … with 12 more rows
 
+The last step is to generate the graph.
+
 ``` r
 final_result2 %>%
   ggplot(aes(x = century,y = cumulative_extinction_rate,group=class_name,color=class_name)) + 
   geom_line()
 ```
 
-![](extinction-assignment_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](extinction-assignment_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+## Analysis Part
+
+*Are we experiencing the sixth great extinction?*
+
+What is the current pace of extinction? Is it accelerating? How does it
+compare to background extinction rates?
+
+According to the graph, “AVES” represents birds, “ACTINOPTERYGII”
+represents fish, “INSECTA” represents insects, “MAMMALIA” represents
+mammals, and “REPTILIA” represents reptiles. The cumulative extinction
+rate started accelerating significantly from the 17th century for birds
+and mammals. Due to lack of data, we can only observe the extinction
+rate for fish and insects from 18 to 20 century, but the cumulative
+extinction is apparently increasing. For reptiles, the cumulative
+extinction rate is gradually increasing as well.
+
+Compared to the graph by Ceballos et al., our cumulative rate of
+extinction smoothed from 19 century to 20 century. However, the graph by
+Ceballos et al. shows that the rate is increasing in this period of
+time. This could be due to missing data in our sample and
+missing/different categories of animals.
+
+From our observation, we are on the way towards the sixth great
+extinction because the cumulative rate of extinction is accelerating at
+an unprecedented pace. While palaeontologists characterize mass
+extinctions as times when the Earth loses more than three-quarters of
+its species in a geologically short interval, we think we could
+potentially lead to the sixth great extinction without proper species
+management. Barnosky confirmed in his paper that “current extinction
+rates are higher than would be expected from the fossil record,
+highlighting the need for effective conservation measures.”
